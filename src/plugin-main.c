@@ -19,7 +19,7 @@ struct decklink_output_filter_context {
 static const char *decklink_output_filter_get_name(void *unused)
 {
 	UNUSED_PARAMETER(unused);
-	return "DecklinkOutput";
+	return obs_module_text("DecklinkOutput");
 }
 
 static void render_preview_source(void *data, uint32_t cx, uint32_t cy)
