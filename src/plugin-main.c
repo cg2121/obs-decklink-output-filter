@@ -29,8 +29,6 @@ static void render_preview_source(void *data, uint32_t cx, uint32_t cy)
 
 	struct decklink_output_filter_context *filter = data;
 
-	gs_texrender_reset(filter->texrender);
-
 	uint32_t width = gs_stagesurface_get_width(filter->stagesurface);
 	uint32_t height = gs_stagesurface_get_height(filter->stagesurface);
 
@@ -46,7 +44,7 @@ static void render_preview_source(void *data, uint32_t cx, uint32_t cy)
 	gs_blend_state_push();
 	gs_blend_function(GS_BLEND_ONE, GS_BLEND_ZERO);
 
-	obs_source_skip_video_filter(filter->source);
+	obs_source_video_render(obs_filter_get_parent(filter->source));
 
 	gs_blend_state_pop();
 	gs_texrender_end(filter->texrender);
@@ -231,12 +229,14 @@ static obs_properties_t *decklink_output_filter_properties(void *data)
 	return props;
 }
 
-void decklink_output_filter_render(void *data, gs_effect_t *effect)
+void decklink_output_filter_tick(void *data, float sec)
 {
 	struct decklink_output_filter_context *filter = data;
-	obs_source_skip_video_filter(filter->source);
 
-	UNUSED_PARAMETER(effect);
+	if (filter->texrender)
+		gs_texrender_reset(filter->texrender);
+
+	UNUSED_PARAMETER(sec);
 }
 
 struct obs_source_info decklink_output_filter = {
@@ -248,7 +248,7 @@ struct obs_source_info decklink_output_filter = {
 	.destroy = decklink_output_filter_destroy,
 	.update = decklink_output_filter_update,
 	.get_properties = decklink_output_filter_properties,
-	.video_render = decklink_output_filter_render};
+	.video_tick = decklink_output_filter_tick};
 
 OBS_DECLARE_MODULE()
 OBS_MODULE_USE_DEFAULT_LOCALE("decklink-output-filter", "en-US")
