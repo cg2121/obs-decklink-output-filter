@@ -44,7 +44,7 @@ static void render_preview_source(void *data, uint32_t cx, uint32_t cy)
 	gs_blend_state_push();
 	gs_blend_function(GS_BLEND_ONE, GS_BLEND_ZERO);
 
-	obs_source_video_render(obs_filter_get_parent(filter->source));
+	obs_source_skip_video_filter(filter->source);
 
 	gs_blend_state_pop();
 	gs_texrender_end(filter->texrender);
