@@ -11,7 +11,7 @@ on:
 
 env:
   MACOS_SIGN_PLUGIN: false
-  OBS_VERSION: "26.1.2"
+  OBS_VERSION: "27.2.3"
   QT_VERSION: "5.15.2"
   MACOS_BUNDLEID: "com.obs-plugin.decklink-output-filter"
 
@@ -80,7 +80,7 @@ jobs:
     name: 'macOS 64-bit'
     runs-on: [macos-latest]
     env:
-      MACOS_DEPS_VERSION: "2021-03-25"
+      MACOS_DEPS_VERSION: "2022-02-13"
       MIN_MACOS_VERSION: '10.13'
       CODE_SIGNING_IDENTITY: ${{ secrets.MACOS_CODE_SIGNING_IDENTITY }}
       INSTALLER_SIGNING_IDENTITY: ${{ secrets.MACOS_INSTALLER_SIGNING_IDENTITY }}
