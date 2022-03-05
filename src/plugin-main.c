@@ -190,6 +190,9 @@ static void frontend_event(enum obs_frontend_event event, void *data)
 	case OBS_FRONTEND_EVENT_FINISHED_LOADING:
 		decklink_output_filter_start(filter);
 		break;
+	case OBS_FRONTEND_EVENT_SCRIPTING_SHUTDOWN:
+		decklink_output_filter_stop(filter);
+		break;
 	default:
 		break;
 	}
