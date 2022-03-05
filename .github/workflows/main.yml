@@ -114,8 +114,8 @@ jobs:
         if: steps.deps-qt-cache.outputs.cache-hit != 'true'
         shell: bash
         run: |
-          curl -L -O https://github.com/obsproject/obs-deps/releases/download/${{ env.MACOS_DEPS_VERSION }}/macos-qt-${{ env.QT_VERSION }}-${{ env.CURRENT_ARCH }}-${{ env.MACOS_DEPS_VERSION }}.tar.gz
-          tar -xf ./macos-qt-${{ env.QT_VERSION }}-${{ env.CURRENT_ARCH }}-${{ env.MACOS_DEPS_VERSION }}.tar.gz -C "/tmp"
+          curl -L -O https://github.com/obsproject/obs-deps/releases/download/${{ env.MACOS_DEPS_VERSION }}/macos-qt-${{ env.QT_VERSION }}-${{ env.CURRENT_ARCH }}-${{ env.MACOS_DEPS_VERSION }}.tar.xz
+          tar -xf ./macos-qt-${{ env.QT_VERSION }}-${{ env.CURRENT_ARCH }}-${{ env.MACOS_DEPS_VERSION }}.tar.xz -C "/tmp"
           xattr -r -d com.apple.quarantine /tmp/obsdeps
       - name: Build OBS
         if: success()
