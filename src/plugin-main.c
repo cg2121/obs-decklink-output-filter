@@ -87,7 +87,6 @@ static void decklink_output_filter_stop(void *data)
 
 	obs_output_stop(filter->output);
 	obs_output_release(filter->output);
-	video_output_stop(filter->video_output);
 
 	obs_enter_graphics();
 	gs_stagesurface_destroy(filter->stagesurface);
