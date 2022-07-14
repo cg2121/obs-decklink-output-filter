@@ -241,6 +241,10 @@ MODULE_EXPORT const char *obs_module_description(void)
 
 bool obs_module_load(void)
 {
-	obs_register_source(&decklink_output_filter);
 	return true;
+}
+
+void obs_module_post_load(void)
+{
+	obs_register_source(&decklink_output_filter);
 }
