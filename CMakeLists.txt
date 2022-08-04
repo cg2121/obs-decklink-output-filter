@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.16...3.21)
 
 # Change obs-plugintemplate to your plugin's name in a machine-readable format
 # (e.g.: obs-myawesomeplugin) and set
-project(obs-decklink-output-filter VERSION 1.0.1)
+project(obs-decklink-output-filter VERSION 1.0.2)
 add_library(${CMAKE_PROJECT_NAME} MODULE)
 
 # Replace `Your Name Here` with the name (yours or your organization's) you want
@@ -28,7 +28,6 @@ target_sources(${CMAKE_PROJECT_NAME} PRIVATE src/plugin-main.c)
 find_package(libobs REQUIRED)
 find_package(obs-frontend-api REQUIRED)
 include(cmake/ObsPluginHelpers.cmake)
-find_qt(VERSION ${QT_VERSION} COMPONENTS Widgets Core)
 
 configure_file(src/plugin-macros.h.in
                ${CMAKE_SOURCE_DIR}/src/plugin-macros.generated.h)
@@ -41,8 +40,7 @@ target_include_directories(${CMAKE_PROJECT_NAME}
                            PRIVATE ${CMAKE_SOURCE_DIR}/src)
 
 target_link_libraries(
-  ${CMAKE_PROJECT_NAME} PRIVATE OBS::libobs OBS::obs-frontend-api Qt::Core
-                                Qt::Widgets)
+  ${CMAKE_PROJECT_NAME} PRIVATE OBS::libobs OBS::obs-frontend-api)
 
 set_target_properties(
   ${CMAKE_PROJECT_NAME}

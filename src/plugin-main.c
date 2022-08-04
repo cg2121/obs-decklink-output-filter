@@ -233,7 +233,7 @@ struct obs_source_info decklink_output_filter = {
 	.video_tick = decklink_output_filter_tick};
 
 OBS_DECLARE_MODULE()
-OBS_MODULE_USE_DEFAULT_LOCALE("obs-decklink-output-filter", "en-US")
+OBS_MODULE_USE_DEFAULT_LOCALE("decklink-output-filter", "en-US")
 MODULE_EXPORT const char *obs_module_description(void)
 {
 	return "Decklink Output Filter";
