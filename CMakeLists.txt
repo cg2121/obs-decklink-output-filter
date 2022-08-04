@@ -39,8 +39,8 @@ target_sources(${CMAKE_PROJECT_NAME} PRIVATE src/plugin-macros.generated.h)
 target_include_directories(${CMAKE_PROJECT_NAME}
                            PRIVATE ${CMAKE_SOURCE_DIR}/src)
 
-target_link_libraries(
-  ${CMAKE_PROJECT_NAME} PRIVATE OBS::libobs OBS::obs-frontend-api)
+target_link_libraries(${CMAKE_PROJECT_NAME} PRIVATE OBS::libobs
+                                                    OBS::obs-frontend-api)
 
 set_target_properties(
   ${CMAKE_PROJECT_NAME}
