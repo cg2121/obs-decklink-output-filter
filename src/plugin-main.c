@@ -191,6 +191,8 @@ static void *decklink_output_filter_create(obs_data_t *settings,
 	signal_handler_t *sh = obs_source_get_signal_handler(filter->source);
 	signal_handler_connect(sh, "enable", set_filter_enabled, filter);
 
+	decklink_output_filter_update(filter, settings);
+
 	return filter;
 }
 
@@ -204,6 +206,8 @@ static void decklink_output_filter_destroy(void *data)
 
 static obs_properties_t *decklink_output_filter_properties(void *data)
 {
+	UNUSED_PARAMETER(data);
+
 	obs_properties_t *props = obs_get_output_properties("decklink_output");
 	obs_property_t *prop = obs_properties_get(props, "auto_start");
 	obs_property_set_visible(prop, false);
