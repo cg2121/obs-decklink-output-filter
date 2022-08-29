@@ -118,7 +118,7 @@ static void decklink_output_filter_start(void *data)
 
 	obs_data_t *settings = obs_source_get_settings(filter->source);
 	const char *hash = obs_data_get_string(settings, "device_hash");
-	int mode_id = obs_data_get_int(settings, "mode_id");
+	int mode_id = (int)obs_data_get_int(settings, "mode_id");
 	obs_data_release(settings);
 
 	if (!hash || !*hash || !mode_id)
