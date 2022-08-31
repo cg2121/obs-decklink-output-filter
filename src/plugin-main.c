@@ -13,7 +13,6 @@ struct decklink_output_filter_context {
 	gs_stagesurf_t *stagesurface;
 
 	bool active;
-	bool mute;
 };
 
 static const char *decklink_output_filter_get_name(void *unused)
@@ -98,7 +97,7 @@ static void decklink_output_filter_stop(void *data)
 	filter->active = false;
 }
 
-static void decklink_output_filter_start(void *data, bool mute)
+static void decklink_output_filter_start(void *data)
 {
 	struct decklink_output_filter_context *filter = data;
 
@@ -148,9 +147,8 @@ static void decklink_output_filter_start(void *data, bool mute)
 	vi.name = obs_source_get_name(filter->source);
 
 	video_output_open(&filter->video_output, &vi);
-
 	obs_output_set_media(filter->output, filter->video_output,
-			     mute ? NULL : obs_get_audio());
+			     obs_get_audio());
 
 	bool started = obs_output_start(filter->output);
 	filter->active = true;
@@ -164,10 +162,8 @@ static void decklink_output_filter_start(void *data, bool mute)
 static void decklink_output_filter_update(void *data, obs_data_t *settings)
 {
 	struct decklink_output_filter_context *filter = data;
-	filter->mute = obs_data_get_bool(settings, "mute_audio");
-
 	decklink_output_filter_stop(filter);
-	decklink_output_filter_start(filter, filter->mute);
+	decklink_output_filter_start(filter);
 
 	UNUSED_PARAMETER(settings);
 }
@@ -179,7 +175,7 @@ static void set_filter_enabled(void *data, calldata_t *calldata)
 	bool enable = calldata_bool(calldata, "enabled");
 
 	if (enable)
-		decklink_output_filter_start(filter, filter->mute);
+		decklink_output_filter_start(filter);
 	else
 		decklink_output_filter_stop(filter);
 }
@@ -191,7 +187,6 @@ static void *decklink_output_filter_create(obs_data_t *settings,
 		bzalloc(sizeof(struct decklink_output_filter_context));
 	filter->source = source;
 	filter->active = false;
-	filter->mute = false;
 
 	signal_handler_t *sh = obs_source_get_signal_handler(filter->source);
 	signal_handler_connect(sh, "enable", set_filter_enabled, filter);
@@ -216,8 +211,6 @@ static obs_properties_t *decklink_output_filter_properties(void *data)
 	obs_properties_t *props = obs_get_output_properties("decklink_output");
 	obs_property_t *prop = obs_properties_get(props, "auto_start");
 	obs_property_set_visible(prop, false);
-	obs_properties_add_bool(props, "mute_audio",
-				obs_module_text("MuteAudio"));
 
 	return props;
 }
