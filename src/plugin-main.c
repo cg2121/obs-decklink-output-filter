@@ -197,6 +197,8 @@ static void frontend_event(enum obs_frontend_event event, void *data)
 static void *decklink_output_filter_create(obs_data_t *settings,
 					   obs_source_t *source)
 {
+	UNUSED_PARAMETER(settings);
+
 	struct decklink_output_filter_context *filter =
 		bzalloc(sizeof(struct decklink_output_filter_context));
 	filter->source = source;
