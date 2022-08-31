@@ -3,6 +3,7 @@
 #include <obs.h>
 #include <media-io/video-io.h>
 #include <media-io/video-frame.h>
+#include <obs-frontend-api.h>
 
 struct decklink_output_filter_context {
 	obs_output_t *output;
@@ -180,6 +181,19 @@ static void set_filter_enabled(void *data, calldata_t *calldata)
 		decklink_output_filter_stop(filter);
 }
 
+static void frontend_event(enum obs_frontend_event event, void *data)
+{
+	struct decklink_output_filter_context *filter = data;
+
+	switch (event) {
+	case OBS_FRONTEND_EVENT_FINISHED_LOADING:
+		decklink_output_filter_start(filter);
+		break;
+	default:
+		break;
+	}
+}
+
 static void *decklink_output_filter_create(obs_data_t *settings,
 					   obs_source_t *source)
 {
@@ -191,14 +205,14 @@ static void *decklink_output_filter_create(obs_data_t *settings,
 	signal_handler_t *sh = obs_source_get_signal_handler(filter->source);
 	signal_handler_connect(sh, "enable", set_filter_enabled, filter);
 
-	decklink_output_filter_update(filter, settings);
-
+	obs_frontend_add_event_callback(frontend_event, filter);
 	return filter;
 }
 
 static void decklink_output_filter_destroy(void *data)
 {
 	struct decklink_output_filter_context *filter = data;
+	obs_frontend_remove_event_callback(frontend_event, filter);
 	decklink_output_filter_stop(filter);
 
 	bfree(filter);
