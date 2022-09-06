@@ -57,7 +57,7 @@ static void decklink_output_filter_start(void *data)
 		filter->view = obs_view_create();
 
 	obs_view_set_source(filter->view, 0,
-			    obs_filter_get_target(filter->source));
+			    obs_filter_get_parent(filter->source));
 
 	if (!filter->video)
 		filter->video = obs_view_add(filter->view);
