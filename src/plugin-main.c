@@ -144,7 +144,7 @@ static void decklink_output_filter_start(void *data)
 	vi.fps_num = main_voi->fps_num;
 	vi.cache_size = 16;
 	vi.colorspace = main_voi->colorspace;
-	vi.range = main_voi->range;
+	vi.range = VIDEO_RANGE_FULL;
 	vi.name = obs_source_get_name(filter->source);
 
 	video_output_open(&filter->video_output, &vi);
