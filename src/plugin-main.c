@@ -3,7 +3,6 @@
 #include "media-io/video-io.h"
 #include "media-io/video-frame.h"
 #include "media-io/video-scaler.h"
-#include "obs-frontend-api.h"
 #include "util/platform.h"
 
 #define STAGE_BUFFER_COUNT 3
@@ -160,31 +159,29 @@ static void decklink_output_filter_stop(void *data)
 	filter->active = false;
 }
 
-static void decklink_output_filter_start(void *data)
+static void decklink_output_filter_start(void *data, obs_data_t *settings)
 {
 	struct decklink_output_filter_context *filter = data;
 
 	if (filter->active)
+		decklink_output_filter_stop(filter);
+
+	if (!obs_source_enabled(filter->source)) {
+		blog(LOG_ERROR, "Filter not enabled");
 		return;
-
-	filter->active = false;
-
-	if (!obs_source_enabled(filter->source))
-		return;
-
-	obs_data_t *settings = obs_source_get_settings(filter->source);
-	const char *hash = obs_data_get_string(settings, "device_hash");
-	int mode_id = (int)obs_data_get_int(settings, "mode_id");
-	obs_data_release(settings);
-
-	if (!hash || !*hash || !mode_id)
-		return;
+	}
 
 	filter->output = obs_output_create(
 		"decklink_output", "decklink_filter_output", settings, NULL);
 
 	const struct video_scale_info *const conversion =
 		obs_output_get_video_conversion(filter->output);
+
+	if (!conversion) {
+		obs_output_release(filter->output);
+		return;
+	}
+
 	const uint32_t width = conversion->width;
 	const uint32_t height = conversion->height;
 
@@ -227,17 +224,18 @@ static void decklink_output_filter_start(void *data)
 
 	filter->active = true;
 
-	if (!started)
+	if (!started) {
+		blog(LOG_ERROR, "Filter failed to start");
 		decklink_output_filter_stop(filter);
+	}
+
+	blog(LOG_ERROR, "Filter started successfully");
 }
 
 static void decklink_output_filter_update(void *data, obs_data_t *settings)
 {
 	struct decklink_output_filter_context *filter = data;
-	decklink_output_filter_stop(filter);
-	decklink_output_filter_start(filter);
-
-	UNUSED_PARAMETER(settings);
+	decklink_output_filter_start(filter, settings);
 }
 
 static void set_filter_enabled(void *data, calldata_t *calldata)
@@ -245,31 +243,18 @@ static void set_filter_enabled(void *data, calldata_t *calldata)
 	struct decklink_output_filter_context *filter = data;
 
 	bool enable = calldata_bool(calldata, "enabled");
+	obs_data_t *settings = obs_source_get_settings(filter->source);
+	obs_data_release(settings);
 
 	if (enable)
-		decklink_output_filter_start(filter);
+		decklink_output_filter_start(filter, settings);
 	else
 		decklink_output_filter_stop(filter);
-}
-
-static void frontend_event(enum obs_frontend_event event, void *data)
-{
-	struct decklink_output_filter_context *filter = data;
-
-	switch (event) {
-	case OBS_FRONTEND_EVENT_FINISHED_LOADING:
-		decklink_output_filter_start(filter);
-		break;
-	default:
-		break;
-	}
 }
 
 static void *decklink_output_filter_create(obs_data_t *settings,
 					   obs_source_t *source)
 {
-	UNUSED_PARAMETER(settings);
-
 	struct decklink_output_filter_context *filter =
 		bzalloc(sizeof(struct decklink_output_filter_context));
 	filter->source = source;
@@ -278,14 +263,13 @@ static void *decklink_output_filter_create(obs_data_t *settings,
 	signal_handler_t *sh = obs_source_get_signal_handler(filter->source);
 	signal_handler_connect(sh, "enable", set_filter_enabled, filter);
 
-	obs_frontend_add_event_callback(frontend_event, filter);
+	obs_source_update(source, settings);
 	return filter;
 }
 
 static void decklink_output_filter_destroy(void *data)
 {
 	struct decklink_output_filter_context *filter = data;
-	obs_frontend_remove_event_callback(frontend_event, filter);
 	decklink_output_filter_stop(filter);
 
 	bfree(filter);
