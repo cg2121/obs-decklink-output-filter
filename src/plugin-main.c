@@ -184,7 +184,7 @@ static void decklink_output_filter_start(void *data)
 		"decklink_output", "decklink_filter_output", settings, NULL);
 
 	const struct video_scale_info *const conversion =
-			obs_output_get_video_conversion(filter->output);
+		obs_output_get_video_conversion(filter->output);
 	const uint32_t width = conversion->width;
 	const uint32_t height = conversion->height;
 
