@@ -1,8 +1,6 @@
 #include "obs-module.h"
 #include "plugin-support.h"
 #include "media-io/video-io.h"
-#include "media-io/video-frame.h"
-#include "media-io/video-scaler.h"
 #include "util/platform.h"
 
 #define STAGE_BUFFER_COUNT 3
