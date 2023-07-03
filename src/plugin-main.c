@@ -165,7 +165,7 @@ static void decklink_output_filter_start(void *data, obs_data_t *settings)
 		decklink_output_filter_stop(filter);
 
 	if (!obs_source_enabled(filter->source)) {
-		blog(LOG_ERROR, "Filter not enabled");
+		obs_log(LOG_ERROR, "Filter not enabled");
 		return;
 	}
 
@@ -223,11 +223,11 @@ static void decklink_output_filter_start(void *data, obs_data_t *settings)
 	filter->active = true;
 
 	if (!started) {
-		blog(LOG_ERROR, "Filter failed to start");
+		obs_log(LOG_ERROR, "Filter failed to start");
 		decklink_output_filter_stop(filter);
 	}
 
-	blog(LOG_ERROR, "Filter started successfully");
+	obs_log(LOG_ERROR, "Filter started successfully");
 }
 
 static void decklink_output_filter_update(void *data, obs_data_t *settings)
