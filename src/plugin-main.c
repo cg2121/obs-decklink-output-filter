@@ -1,5 +1,5 @@
 #include "obs-module.h"
-#include "plugin-macros.generated.h"
+#include "plugin-support.h"
 #include "media-io/video-io.h"
 #include "media-io/video-frame.h"
 #include "media-io/video-scaler.h"
@@ -323,5 +323,7 @@ bool obs_module_load(void)
 
 void obs_module_post_load(void)
 {
+	obs_log(LOG_INFO, "plugin loaded successfully (version %s)",
+		PLUGIN_VERSION);
 	obs_register_source(&decklink_output_filter);
 }
