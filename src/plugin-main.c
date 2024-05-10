@@ -137,6 +137,7 @@ static void decklink_output_filter_stop(void *data)
 
 	obs_output_stop(filter->output);
 	obs_output_release(filter->output);
+	obs_source_dec_showing(obs_filter_get_parent(filter->source));
 
 	obs_remove_main_render_callback(render_preview_source, filter);
 
@@ -220,6 +221,8 @@ static void decklink_output_filter_start(void *data, obs_data_t *settings)
 			     obs_get_audio());
 
 	bool started = obs_output_start(filter->output);
+
+	obs_source_inc_showing(obs_filter_get_parent(filter->source));
 
 	filter->active = true;
 
