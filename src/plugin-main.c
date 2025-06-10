@@ -46,8 +46,7 @@ static void render_preview_source(void *data, uint32_t cx, uint32_t cy)
 	width = obs_source_get_base_width(parent);
 	height = obs_source_get_base_height(parent);
 
-	gs_texrender_t *const texrender_premultiplied =
-		filter->texrender_premultiplied;
+	gs_texrender_t *const texrender_premultiplied = filter->texrender_premultiplied;
 	if (!gs_texrender_begin(texrender_premultiplied, width, height))
 		return;
 
@@ -67,8 +66,7 @@ static void render_preview_source(void *data, uint32_t cx, uint32_t cy)
 
 	tex = gs_texrender_get_texture(texrender_premultiplied);
 
-	const struct video_scale_info *const conversion =
-		obs_output_get_video_conversion(filter->output);
+	const struct video_scale_info *const conversion = obs_output_get_video_conversion(filter->output);
 	const uint32_t scaled_width = conversion->width;
 	const uint32_t scaled_height = conversion->height;
 
@@ -80,8 +78,7 @@ static void render_preview_source(void *data, uint32_t cx, uint32_t cy)
 	gs_enable_blending(false);
 
 	gs_effect_t *const effect = obs_get_base_effect(OBS_EFFECT_DEFAULT);
-	gs_effect_set_texture_srgb(gs_effect_get_param_by_name(effect, "image"),
-				   tex);
+	gs_effect_set_texture_srgb(gs_effect_get_param_by_name(effect, "image"), tex);
 	while (gs_effect_loop(effect, "DrawAlphaDivide")) {
 		gs_draw_sprite(tex, 0, 0, 0);
 	}
@@ -92,28 +89,20 @@ static void render_preview_source(void *data, uint32_t cx, uint32_t cy)
 	gs_texrender_end(filter->texrender);
 
 	const size_t write_stage_index = filter->stage_index;
-	gs_stage_texture(filter->stagesurfaces[write_stage_index],
-			 gs_texrender_get_texture(filter->texrender));
+	gs_stage_texture(filter->stagesurfaces[write_stage_index], gs_texrender_get_texture(filter->texrender));
 	filter->surf_written[write_stage_index] = true;
 
-	const size_t read_stage_index =
-		(write_stage_index + 1) % STAGE_BUFFER_COUNT;
+	const size_t read_stage_index = (write_stage_index + 1) % STAGE_BUFFER_COUNT;
 	if (filter->surf_written[read_stage_index]) {
 		struct video_frame output_frame;
-		if (video_output_lock_frame(filter->video_queue, &output_frame,
-					    1, os_gettime_ns())) {
-			gs_stagesurf_t *const read_surf =
-				filter->stagesurfaces[read_stage_index];
-			if (gs_stagesurface_map(read_surf, &filter->video_data,
-						&filter->video_linesize)) {
+		if (video_output_lock_frame(filter->video_queue, &output_frame, 1, os_gettime_ns())) {
+			gs_stagesurf_t *const read_surf = filter->stagesurfaces[read_stage_index];
+			if (gs_stagesurface_map(read_surf, &filter->video_data, &filter->video_linesize)) {
 				uint32_t linesize = output_frame.linesize[0];
 				for (uint32_t i = 0; i < scaled_height; i++) {
 					uint32_t dst_offset = linesize * i;
-					uint32_t src_offset =
-						filter->video_linesize * i;
-					memcpy(output_frame.data[0] +
-						       dst_offset,
-					       filter->video_data + src_offset,
+					uint32_t src_offset = filter->video_linesize * i;
+					memcpy(output_frame.data[0] + dst_offset, filter->video_data + src_offset,
 					       linesize);
 				}
 
@@ -171,11 +160,9 @@ static void decklink_output_filter_start(void *data, obs_data_t *settings)
 		return;
 	}
 
-	filter->output = obs_output_create(
-		"decklink_output", "decklink_filter_output", settings, NULL);
+	filter->output = obs_output_create("decklink_output", "decklink_filter_output", settings, NULL);
 
-	const struct video_scale_info *const conversion =
-		obs_output_get_video_conversion(filter->output);
+	const struct video_scale_info *const conversion = obs_output_get_video_conversion(filter->output);
 
 	if (!conversion) {
 		obs_output_release(filter->output);
@@ -186,12 +173,10 @@ static void decklink_output_filter_start(void *data, obs_data_t *settings)
 	const uint32_t height = conversion->height;
 
 	obs_enter_graphics();
-	filter->texrender_premultiplied =
-		gs_texrender_create(GS_BGRA, GS_ZS_NONE);
+	filter->texrender_premultiplied = gs_texrender_create(GS_BGRA, GS_ZS_NONE);
 	filter->texrender = gs_texrender_create(GS_BGRA, GS_ZS_NONE);
 	for (size_t i = 0; i < STAGE_BUFFER_COUNT; i++)
-		filter->stagesurfaces[i] =
-			gs_stagesurface_create(width, height, GS_BGRA);
+		filter->stagesurfaces[i] = gs_stagesurface_create(width, height, GS_BGRA);
 	obs_leave_graphics();
 
 	for (size_t i = 0; i < STAGE_BUFFER_COUNT; i++)
@@ -199,8 +184,7 @@ static void decklink_output_filter_start(void *data, obs_data_t *settings)
 
 	filter->stage_index = 0;
 
-	const struct video_output_info *main_voi =
-		video_output_get_info(obs_get_video());
+	const struct video_output_info *main_voi = video_output_get_info(obs_get_video());
 
 	struct video_output_info vi = {0};
 	vi.format = VIDEO_FORMAT_BGRA;
@@ -217,8 +201,7 @@ static void decklink_output_filter_start(void *data, obs_data_t *settings)
 
 	obs_add_main_render_callback(render_preview_source, filter);
 
-	obs_output_set_media(filter->output, filter->video_queue,
-			     obs_get_audio());
+	obs_output_set_media(filter->output, filter->video_queue, obs_get_audio());
 
 	bool started = obs_output_start(filter->output);
 
@@ -254,11 +237,9 @@ static void set_filter_enabled(void *data, calldata_t *calldata)
 		decklink_output_filter_stop(filter);
 }
 
-static void *decklink_output_filter_create(obs_data_t *settings,
-					   obs_source_t *source)
+static void *decklink_output_filter_create(obs_data_t *settings, obs_source_t *source)
 {
-	struct decklink_output_filter_context *filter =
-		bzalloc(sizeof(struct decklink_output_filter_context));
+	struct decklink_output_filter_context *filter = bzalloc(sizeof(struct decklink_output_filter_context));
 	filter->source = source;
 	filter->active = false;
 
@@ -300,16 +281,15 @@ void decklink_output_filter_tick(void *data, float sec)
 	UNUSED_PARAMETER(sec);
 }
 
-struct obs_source_info decklink_output_filter = {
-	.id = "decklink_output_filter",
-	.type = OBS_SOURCE_TYPE_FILTER,
-	.output_flags = OBS_SOURCE_VIDEO,
-	.get_name = decklink_output_filter_get_name,
-	.create = decklink_output_filter_create,
-	.destroy = decklink_output_filter_destroy,
-	.update = decklink_output_filter_update,
-	.get_properties = decklink_output_filter_properties,
-	.video_tick = decklink_output_filter_tick};
+struct obs_source_info decklink_output_filter = {.id = "decklink_output_filter",
+						 .type = OBS_SOURCE_TYPE_FILTER,
+						 .output_flags = OBS_SOURCE_VIDEO,
+						 .get_name = decklink_output_filter_get_name,
+						 .create = decklink_output_filter_create,
+						 .destroy = decklink_output_filter_destroy,
+						 .update = decklink_output_filter_update,
+						 .get_properties = decklink_output_filter_properties,
+						 .video_tick = decklink_output_filter_tick};
 
 OBS_DECLARE_MODULE()
 OBS_MODULE_USE_DEFAULT_LOCALE("decklink-output-filter", "en-US")
@@ -325,7 +305,6 @@ bool obs_module_load(void)
 
 void obs_module_post_load(void)
 {
-	obs_log(LOG_INFO, "plugin loaded successfully (version %s)",
-		PLUGIN_VERSION);
+	obs_log(LOG_INFO, "plugin loaded successfully (version %s)", PLUGIN_VERSION);
 	obs_register_source(&decklink_output_filter);
 }
