@@ -160,7 +160,7 @@ static void decklink_output_filter_start(void *data, obs_data_t *settings)
 		return;
 
 	if (!obs_source_enabled(filter->source)) {
-		blog(LOG_ERROR, "Filter not enabled");
+		obs_log(LOG_ERROR, "Filter not enabled");
 		return;
 	}
 
@@ -169,6 +169,7 @@ static void decklink_output_filter_start(void *data, obs_data_t *settings)
 	const struct video_scale_info *const conversion = obs_output_get_video_conversion(filter->output);
 
 	if (!conversion) {
+		obs_log(LOG_ERROR, "Failed to get output video conversion");
 		obs_output_release(filter->output);
 		return;
 	}
@@ -214,14 +215,14 @@ static void decklink_output_filter_start(void *data, obs_data_t *settings)
 	filter->active = true;
 
 	if (!started) {
-		blog(LOG_ERROR, "Filter failed to start");
+		obs_log(LOG_ERROR, "Filter failed to start");
 		decklink_output_filter_stop(filter);
 		return;
 	}
 
 	obs_property_set_description(filter->button, obs_module_text("Stop"));
 
-	blog(LOG_INFO, "Filter started successfully");
+	obs_log(LOG_INFO, "Filter started successfully");
 }
 
 static void decklink_output_filter_update(void *data, obs_data_t *settings)
