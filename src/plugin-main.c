@@ -10,6 +10,8 @@ struct decklink_output_filter_context {
 	obs_output_t *output;
 	obs_source_t *source;
 
+	obs_property_t *button;
+
 	bool active;
 
 	video_t *video_queue;
@@ -147,10 +149,7 @@ static void decklink_output_filter_stop(void *data)
 
 	filter->active = false;
 
-	obs_properties_t *props = obs_source_properties(filter->source);
-	obs_property_t *button = obs_properties_get(props, "Button");
-	obs_property_set_description(button, obs_module_text("Start"));
-	obs_properties_destroy(props);
+	obs_property_set_description(filter->button, obs_module_text("Start"));
 }
 
 static void decklink_output_filter_start(void *data, obs_data_t *settings)
@@ -220,10 +219,7 @@ static void decklink_output_filter_start(void *data, obs_data_t *settings)
 		return;
 	}
 
-	obs_properties_t *props = obs_source_properties(filter->source);
-	obs_property_t *button = obs_properties_get(props, "Button");
-	obs_property_set_description(button, obs_module_text("Stop"));
-	obs_properties_destroy(props);
+	obs_property_set_description(filter->button, obs_module_text("Stop"));
 
 	blog(LOG_INFO, "Filter started successfully");
 }
@@ -296,7 +292,7 @@ static bool button_cb(obs_properties_t *properties, obs_property_t *property, vo
 
 	obs_property_set_enabled(property, true);
 
-	return false;
+	return true;
 }
 
 static obs_properties_t *decklink_output_filter_properties(void *data)
@@ -304,8 +300,7 @@ static obs_properties_t *decklink_output_filter_properties(void *data)
 	struct decklink_output_filter_context *filter = data;
 
 	obs_properties_t *props = obs_get_output_properties("decklink_output");
-	obs_properties_add_button2(props, "Button", filter->active ? obs_module_text("Stop") : obs_module_text("Start"),
-				   button_cb, filter);
+	filter->button = obs_properties_add_button2(props, "Button", obs_module_text("Start"), button_cb, filter);
 
 	return props;
 }
