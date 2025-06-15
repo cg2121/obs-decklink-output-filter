@@ -304,7 +304,9 @@ static obs_properties_t *decklink_output_filter_properties(void *data)
 	struct decklink_output_filter_context *filter = data;
 
 	obs_properties_t *props = obs_get_output_properties("decklink_output");
-	filter->button = obs_properties_add_button2(props, "Button", obs_module_text("Start"), button_cb, filter);
+	filter->button = obs_properties_add_button2(props, "Button",
+						    filter->active ? obs_module_text("Stop") : obs_module_text("Start"),
+						    button_cb, filter);
 
 	return props;
 }
