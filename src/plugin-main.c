@@ -221,7 +221,8 @@ static void decklink_output_filter_start(void *data, obs_data_t *settings)
 		return;
 	}
 
-	obs_property_set_description(filter->button, obs_module_text("Stop"));
+	if (filter->button)
+		obs_property_set_description(filter->button, obs_module_text("Stop"));
 
 	obs_log(LOG_INFO, "Filter started successfully");
 }
@@ -253,6 +254,7 @@ static void *decklink_output_filter_create(obs_data_t *settings, obs_source_t *s
 	struct decklink_output_filter_context *filter = bzalloc(sizeof(struct decklink_output_filter_context));
 	filter->source = source;
 	filter->active = false;
+	filter->button = NULL;
 
 	signal_handler_t *sh = obs_source_get_signal_handler(filter->source);
 	signal_handler_connect(sh, "enable", set_filter_enabled, filter);
