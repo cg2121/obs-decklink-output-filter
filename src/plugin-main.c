@@ -149,7 +149,8 @@ static void decklink_output_filter_stop(void *data)
 
 	filter->active = false;
 
-	obs_property_set_description(filter->button, obs_module_text("Start"));
+	if (filter->button)
+		obs_property_set_description(filter->button, obs_module_text("Start"));
 }
 
 static void decklink_output_filter_start(void *data, obs_data_t *settings)
@@ -267,6 +268,8 @@ static void *decklink_output_filter_create(obs_data_t *settings, obs_source_t *s
 static void decklink_output_filter_destroy(void *data)
 {
 	struct decklink_output_filter_context *filter = data;
+	filter->button = NULL;
+
 	decklink_output_filter_stop(filter);
 
 	signal_handler_t *sh = obs_source_get_signal_handler(filter->source);
